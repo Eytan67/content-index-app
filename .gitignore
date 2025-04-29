@@ -14,3 +14,7 @@ build/
 # Misc
 .env
 *.log
+
+# Database files
+/backend/uploads/
+/backend/database.db
