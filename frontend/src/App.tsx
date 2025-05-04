@@ -1,25 +1,58 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./App.css";
 
-const App: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+interface Lesson {
+  id: number;
+  title: string;
+  content: string;
+  file_path: string;
+  creator_name: string;
+}
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
+function App() {
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/lessons")
+      .then((response) => {
+        setLessons(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching lessons:", error);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="App">
-      <h1>Content Index App</h1>
-      <input
-        type="text"
-        placeholder="Search for lessons..."
-        value={searchQuery}
-        onChange={handleSearch}
-      />
-      <p>Searching for: {searchQuery}</p>
+      <h1>Content Index</h1>
+      <h2>Lessons</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <ul>
+          {lessons.map((lesson) => (
+            <li key={lesson.id}>
+              <h3>{lesson.title}</h3>
+              <p>{lesson.content}</p>
+              <p>By: {lesson.creator_name}</p>
+              <a
+                href={`http://127.0.0.1:8000/${lesson.file_path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Lesson
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
-};
+}
 
 export default App;
